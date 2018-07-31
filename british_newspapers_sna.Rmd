@@ -11,6 +11,10 @@ library(tidyverse)
 library(RColorBrewer)
 library(visNetwork)
 library(ggrepel)
+
+# set plotting area options
+par(mar = c(0,0,0,0))
+
 ```
 
 ## Read data
@@ -26,25 +30,25 @@ View(net_edgelist)
 
 gb_data_survey.csv - is table with additional information about the readers. Each row is a pair "respondent - newspaper". In case if person reads two papers, there will be 2 rows with his characteristics, by one for each newspapers. 
 
-Variables:
-id - identification number of respondent
-region - region of living
-problem1 - public issue refered as the most important for Great Britan
-party - party affiliation
-days_a_week_news - how many days a week respondent follow political news
-left_right - political orientation (0 - left, 10 - right)
-membership_eu - opinion about Britan's membership in European union
-sex - ...
-birth_year - ...
-social_class - ...
-urban - level of living area urbanization
-religion - religion affilation
-wealth - level of wealth (1 - extremly poor, 7 - extremly rich)
-newspaper - newspaper the respondent used to read
+Variables:  
+id - identification number of respondent  
+region - region of living  
+problem1 - public issue refered as the most important for Great Britan  
+party - party affiliation  
+days_a_week_news - how many days a week respondent follow political news  
+left_right - political orientation (0 - left, 10 - right)  
+membership_eu - opinion about Britan's membership in European union  
+sex - ...  
+birth_year - ...  
+social_class - ...  
+urban - level of living area urbanization  
+religion - religion affilation  
+wealth - level of wealth (1 - extremly poor, 7 - extremly rich)  
+newspaper - newspaper the respondent used to read  
 
 
 ```{r}
-meta = read.csv("gb_data_survey.csv")
+meta = read.csv("gb_data_survey.csv", stringsAsFactors = FALSE)
 View(meta)
 ```
 
@@ -65,43 +69,81 @@ plot(net)
 
 Lets remove titles and reduce the node size. 
 
+In igraph we can edit appearance of nodes with parameters starting from *vertex.*, while edges' visualization might be assesed by with prefix *edge.*.
 
 ```{r}
-# задаем параметры
 plot(net, 
      vertex.size = 4, 
-     vertex.label = NA)
-# что можно менять
-# узлы - связи - подписи
-# размер - цвет - форма
-# + расположение
+     vertex.color = "steelblue1", 
+     vertex.label = NA,
+     edge.curved = 0.2)
 ```
+
+Main elements of network visualization are nodes, edges, labels and layout. Main appearance paramentes: color, size, shape. 
+
+We can recompute the layout of network.
 
 ```{r}
 my_layout = layout.fruchterman.reingold(net)
+# you may try another function e.g. layout.kamada.kawai()
 
 plot(net, 
      vertex.size = 4, 
      vertex.color = "steelblue1",
-     layout = my_layout, 
      vertex.label = NA,
-     edge.curved = 0.2)
+     edge.curved = 0.2,
+     layout = my_layout)
 ```
+
+We can use the width of edges to show how many common reader the newspapers have. Whan we loaded our edgelist to igraph, the weigths were automatically detected. In igraph we can save attributes of the nodes and edges. They can be accesed with the following structure.
+
+V(*graph_object_name*)$*attribute_name* (V - stands for vertices)  
+E(*graph_object_name*)$*attribute_name* (E - stands for edges)
+
+Lets transform the weights to have less ranged distribution. 
 
 ```{r}
 E(net)$width = log(E(net)$weight+0.5)*2
 
 plot(net, 
      vertex.size = 4, 
-     vertex.color = "steelblue1",
-     layout = my_layout, 
+     vertex.color = "steelblue1", 
      vertex.label = NA,
      edge.curved = 0.2,
+     layout = my_layout,
      edge.width = E(net)$width)
 ```
 
+One of the practices to improve readability of the graph is to remove "inimportant" nodes or edges.
 
-# centrality measures
+Lets compute how many readers have each newspaper in our sample and remove those of them whch have less than 3.
+
+```{r}
+rare_papers = meta %>% 
+  group_by(newspaper) %>% 
+  summarize(count = n()) %>% 
+  filter(count < 3)
+
+net2 = delete.vertices(net, V(net)$name %in% rare_papers$newspaper)
+
+# recompute layout
+my_layout2 = layout.fruchterman.reingold(net2)
+
+plot(net2,
+     vertex.size = V(net2)$size, 
+     vertex.color = "steelblue1",
+     vertex.label = NA,
+     edge.curved = 0.2,
+     layout = my_layout2,
+     edge.width = E(net2)$width)
+```
+
+## Centrality measures
+
+There are different centrality measures for nodes in network analysis.   
+degree - number of adjacent edges   
+closeness - how many steps is required to access every other node from a given node  
+betweenness - (roughly) the number of shortest paths going through a node  
 
 ```{r}
 V(net)$degree = degree(net)
@@ -109,34 +151,14 @@ V(net)$size = log(V(net)$degree)*2
 
 plot(net, 
      vertex.size = V(net)$size, 
-     vertex.color = "steelblue1",
-     layout = my_layout, 
-     vertex.label = NA,
-     edge.curved = 0.2)
-```
-
-# убрать редкие газеты
-
-```{r}
-
-rare_papers = meta %>% 
-  group_by(newspaper) %>% 
-  summarize(count = n()) %>% 
-  filter(count < 3)
-
-rare_papers$newspaper = as.character(rare_papers$newspaper)
-
-net2 = delete.vertices(net, V(net)$name %in% rare_papers$newspaper)
-my_layout2 = layout.fruchterman.reingold(net2)
-
-plot(net2,
-     vertex.size = V(net2)$size, 
-     vertex.color = "steelblue1",
-     layout = my_layout2, 
+     vertex.color = "steelblue1", 
      vertex.label = NA,
      edge.curved = 0.2,
-     edge.width = E(net2)$width)
+     layout = my_layout,
+     edge.width = E(net)$width)
 ```
+
+We could add titles for a particular set of nodes. For example, for those which are in top-10% list of nodes by degree.
 
 ```{r}
 quantile(V(net)$degree, 0.9)
@@ -145,15 +167,15 @@ V(net)$label = ifelse(V(net)$degree > quantile(V(net)$degree, 0.9), V(net)$name,
 plot(net, 
      vertex.size = V(net)$size, 
      vertex.color = "steelblue1",
-     layout = my_layout,
      edge.curved = 0.2, 
+     layout = my_layout,
      edge.width = E(net)$width,
      vertex.label.cex = 0.75, 
      vertex.label = V(net)$label, 
      vertex.label.color = "black")
 ```
 
-# community detection
+# Community detection
 
 # interpretation
 ```{r}
