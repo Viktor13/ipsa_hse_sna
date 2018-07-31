@@ -1,0 +1,320 @@
+"node1","node2","weight"
+"sun","daily telegraph",14
+"sun","guardian",9
+"sun","the times",10
+"sun","the mirror",13
+"sun","daily mail",22
+"sun","daily express",8
+"sun","the star",5
+"sun","sunday times",2
+"sun","metro",1
+"sun","news of the world",11
+"sun","the observer",1
+"sun","mail on sunday",3
+"sun","sunday express",2
+"sun","the evening herald",1
+"sun","manchester evening news",1
+"sun","local newspapers",1
+"sun","daily record",2
+"sun","the herald",1
+"sun","south wales evening post",1
+"sun","the evening standard",1
+"sun","london  newpaper",1
+"sun","the examiner",1
+"sun","daily press",1
+"sun","the glasgow herold",1
+"sun","daily echo",1
+"sun","birmingham mail",1
+"sun","the hull daily mail",1
+"sun","hunts post/ the local newspaper",1
+"sun","sunday mail",1
+"sun","the wlasall observer",1
+"sun","evening times",1
+"sun","the transport network",1
+"sun","shropshire star",1
+"sun","dorser echo",1
+"sun","the local newspaper six nights a week",1
+"sun","people on sunday",1
+"sun","local rag",1
+"sun","saturday express",1
+"sun","scotish daily mirror",1
+"sun","evening echo/ local paper",1
+"sun","sunday people",1
+"sun","sport",1
+"sun","the courier",1
+"daily telegraph","guardian",21
+"daily telegraph","the times",16
+"daily telegraph","the mirror",1
+"daily telegraph","daily mail",18
+"daily telegraph","the independent",4
+"daily telegraph","daily express",7
+"daily telegraph","the financial times",2
+"daily telegraph","sunday times",7
+"daily telegraph","metro",3
+"daily telegraph","the observer",2
+"daily telegraph","sunday telegraph",1
+"daily telegraph","mail on sunday",2
+"daily telegraph","local newspaper",1
+"daily telegraph","western mail",1
+"daily telegraph","city am",1
+"daily telegraph","the guardian",1
+"daily telegraph","st andrews citezen",1
+"daily telegraph","the yorkshire post",1
+"daily telegraph","the eveniing standard",1
+"daily telegraph","money week",1
+"daily telegraph","the express and echo",1
+"daily telegraph","press and general",1
+"daily telegraph","local newspaper, west britain (health and packet)",1
+"daily telegraph","the post",1
+"daily telegraph","international, bergens tidene",1
+"guardian","the times",14
+"guardian","the mirror",2
+"guardian","daily mail",5
+"guardian","the independent",10
+"guardian","the financial times",2
+"guardian","the star",1
+"guardian","sunday times",4
+"guardian","metro",2
+"guardian","the observer",11
+"guardian","the scotsman",1
+"guardian","local newspapers",1
+"guardian","local newspaper",1
+"guardian","western mail",1
+"guardian","the lanacashire evening post",1
+"guardian","the evening standard",1
+"guardian","the guardian",2
+"guardian","london evening standard",1
+"guardian","local evening newspaper",1
+"guardian","money week",1
+"guardian","the express and echo",1
+"guardian","local paper/ camberly news//",1
+"guardian","the daily sport",1
+"guardian","italian newspaper/la republica",1
+"guardian","oxford times",1
+"guardian","the post",1
+"guardian","international, bergens tidene",1
+"the times","the mirror",4
+"the times","daily mail",16
+"the times","the independent",6
+"the times","daily express",5
+"the times","the financial times",4
+"the times","sunday times",9
+"the times","metro",2
+"the times","the observer",5
+"the times","sunday telegraph",3
+"the times","independent on sunday",2
+"the times","mail on sunday",2
+"the times","evening standard",3
+"the times","eastern daily press",1
+"the times","local edinburgh paper",1
+"the times","the lanacashire evening post",1
+"the times","the echo",1
+"the times","the local sheffield paper",1
+"the times","sunday post",1
+"the times","yorkshire post",1
+"the times","daily post",1
+"the times","the guardian",1
+"the times","london today",1
+"the times","money week",1
+"the times","the sidmouth herald",1
+"the times","the journal",1
+"the times","the post",1
+"the times","international, bergens tidene",1
+"the mirror","daily mail",14
+"the mirror","daily express",4
+"the mirror","the star",3
+"the mirror","metro",1
+"the mirror","news of the world",3
+"the mirror","the observer",1
+"the mirror","mail on sunday",1
+"the mirror","evening standard",2
+"the mirror","the herald",1
+"the mirror","south wales evening post",1
+"the mirror","the examiner",1
+"the mirror","the echo",1
+"the mirror","the local paper",1
+"the mirror","daily gazette",1
+"the mirror","sunday mail",1
+"the mirror","sunday mirror",1
+"the mirror","the people",1
+"the mirror","shropshire star",1
+"the mirror","the sunderland echo",1
+"the mirror","a review",1
+"the mirror","sunday people",1
+"daily mail","the independent",4
+"daily mail","daily express",25
+"daily mail","the financial times",2
+"daily mail","the star",2
+"daily mail","sunday times",4
+"daily mail","metro",2
+"daily mail","news of the world",6
+"daily mail","the observer",3
+"daily mail","mail on sunday",18
+"daily mail","sunday express",4
+"daily mail","bucks herald",1
+"daily mail","evening standard",2
+"daily mail","eastern daily press",2
+"daily mail","western mail",1
+"daily mail","daily record",1
+"daily mail","the lanacashire evening post",1
+"daily mail","the local newspaper",1
+"daily mail","evening post (local newspaper)",1
+"daily mail","irish independant",1
+"daily mail","the examiner",1
+"daily mail","the record",1
+"daily mail","the local paper",1
+"daily mail","liverpool echo",1
+"daily mail","local messenger",1
+"daily mail","local paper- the evening telegraph",1
+"daily mail","birmingham mail",1
+"daily mail","local paper-marlow free press",1
+"daily mail","the evening echo",1
+"daily mail","the evening cronical",1
+"daily mail","sunday mail",1
+"daily mail","the guardian",1
+"daily mail","sunday mirror",1
+"daily mail","the telegraph",1
+"daily mail","the people",1
+"daily mail","liverpool daily post",1
+"daily mail","the express and star",1
+"daily mail","western morning news",1
+"daily mail","penarth times",1
+"daily mail","the local newspaper six nights a week",1
+"daily mail","saturday express",1
+"daily mail","daily star",1
+"daily mail","eastern evening news",1
+"daily mail","edp",1
+"daily mail","sunday people",1
+"daily mail","local newspaper, west britain (health and packet)",1
+"daily mail","the post",1
+"daily mail","kings lynn advertiser",1
+"the independent","sunday times",1
+"the independent","metro",2
+"the independent","news of the world",1
+"the independent","the observer",5
+"the independent","the glasgow herald",1
+"the independent","the evening standard",1
+"the independent","the guardian",2
+"the independent","money week",1
+"the independent","the worcester news",1
+"the independent","oxford times",1
+"the independent","the post",1
+"the independent","international, bergens tidene",1
+"daily express","the financial times",1
+"daily express","independent on sunday",1
+"daily express","mail on sunday",4
+"daily express","sunday express",4
+"daily express","the evening post",1
+"daily express","evening standard",1
+"daily express","western mail",1
+"daily express","the advertiser",1
+"daily express","the examiner",1
+"daily express","liverpool echo",1
+"daily express","local messenger",1
+"daily express","the herold",1
+"daily express","the telegraph",1
+"daily express","the sunday post",1
+"daily express","ellesmere port pineer",1
+"daily express","evening cronicle",1
+"daily express","the grimsby telegraph",1
+"daily express","the chester cronical",1
+"the financial times","the observer",1
+"the financial times","mail on sunday",1
+"the financial times","the economist",1
+"the financial times","the journal",1
+"the financial times","the european newspapers",1
+"the star","news of the world",2
+"the star","sunday mail",1
+"the star","the daily sport",1
+"the star","the courier",1
+"sunday times","the observer",2
+"sunday times","sunday telegraph",3
+"sunday times","independent on sunday",1
+"sunday times","st andrews citezen",1
+"sunday times","the economist",1
+"sunday times","dundee cureor",1
+"sunday times","the sidmouth herald",1
+"sunday times","italian newspaper/la republica",1
+"sunday times","edp local",1
+"sunday times","arbroath herold",1
+"metro","south london press",1
+"metro","london lite",1
+"metro","city am",1
+"metro","london  newpaper",1
+"metro","express and star",1
+"metro","london light",1
+"metro","campden new journal",1
+"metro","the formby times",1
+"metro","the london newspaper",1
+"metro","london paper",1
+"metro","the champion",1
+"news of the world","mail on sunday",1
+"news of the world","sunday express",1
+"news of the world","daily record",1
+"news of the world","liverpool echo",1
+"news of the world","express and star",1
+"news of the world","the evening cronical",1
+"news of the world","sunday mail",1
+"news of the world","the wlasall observer",1
+"news of the world","sunday mirror",1
+"news of the world","people on sunday",1
+"news of the world","the daily mirror",1
+"news of the world","sunday people",1
+"news of the world","the citizan",1
+"the observer","the glasgow herald",1
+"the observer","eastern daily press",1
+"the observer","evening post (local newspaper)",1
+"the observer","the guardian",1
+"the observer","a review",1
+"the observer","italian newspaper/la republica",1
+"the observer","oxford times",1
+"sunday telegraph","independent on sunday",1
+"sunday telegraph","the telegraph",1
+"mail on sunday","sunday express",4
+"mail on sunday","local newspapers",1
+"mail on sunday","weekly news letter-local",1
+"mail on sunday","eastern daily press",1
+"mail on sunday","daily record",1
+"mail on sunday","irish independant",1
+"mail on sunday","express and star",1
+"mail on sunday","sunday post",1
+"mail on sunday","sunday mail",1
+"mail on sunday","liverpool daily post",1
+"mail on sunday","the express and star",1
+"sunday express","the evening post",1
+"sunday express","daily record",1
+"sunday express","sunday mail",1
+"sunday express","liverpool daily post",1
+"sunday express","saturday express",1
+"sunday express","regional paper- south wales argus",1
+"manchester evening news","advertiser",1
+"weekly news letter-local","express and star",1
+"western mail","south wales argus",1
+"daily record","glasgow herald",1
+"daily record","sunday mail",2
+"daily record","evening times",1
+"daily record","inverness press and journal",1
+"newcastle journal","newcastle evening chronicle",1
+"london light","london paper",1
+"sunday post","the telegraph",1
+"sunday mail","sunday mirror",1
+"sunday mail","the courier",1
+"the guardian","oxford times",1
+"the guardian","the post",1
+"sunday mirror","the daily mirror",1
+"sunday mirror","the citizan",1
+"scottish man","scotland on sunday",1
+"the week","cambridge evening paper",1
+"scotsman","scotland on sunday",1
+"scotsman","local paper-press and the journal",1
+"the economist","edp local",1
+"the economist","the european newspapers",1
+"the sunday post","the grimsby telegraph",1
+"dundee cureor","arbroath herold",1
+"money week","international, bergens tidene",1
+"daily star","kings lynn advertiser",1
+"the daily mirror","the citizan",1
+"the formby times","the champion",1
+"ellesmere port pineer","the chester cronical",1
+"melton times","lester mercury",1
+"scotland on sunday","local paper-press and the journal",1

@@ -1,0 +1,268 @@
+
+```{r}
+library(igraph)
+library(tidyverse)
+library(RColorBrewer)
+library(visNetwork)
+library(ggrepel)
+```
+
+graph_gb_papers.csv - это edgelist, т.е. каждая строчка в этой таблице представляет связь между двумя узлами в сети. Здесь узлы это периодические издания, связь между ними появляется, если один из респондентов читает обе газеты. У каждой связи есть атрибут weight (третья колонка), показывающий силу связи, то есть то, сколько всего человек читают обе газеты. 
+
+```{r}
+# читаем данные
+net_edgelist = read.csv("graph_gb_papers.csv")
+View(net_edgelist)
+```
+
+```{r}
+meta = read.csv("gb_data_survey.csv")
+View(meta)
+```
+
+```{r}
+# загружаем в igraph
+# неориентированный
+# доп аттрибуты
+net = graph_from_data_frame(net_edgelist, directed = FALSE)
+net
+```
+
+```{r}
+par(mar = c(0,0,0,0))
+
+# просто рисуем
+plot(net)
+```
+
+```{r}
+# задаем параметры
+plot(net, 
+     vertex.size = 4, 
+     vertex.label = NA)
+# что можно менять
+# узлы - связи - подписи
+# размер - цвет - форма
+# + расположение
+```
+
+```{r}
+my_layout = layout.fruchterman.reingold(net)
+
+plot(net, 
+     vertex.size = 4, 
+     vertex.color = "steelblue1",
+     layout = my_layout, 
+     vertex.label = NA,
+     edge.curved = 0.2)
+```
+
+```{r}
+E(net)$width = log(E(net)$weight+0.5)*2
+
+plot(net, 
+     vertex.size = 4, 
+     vertex.color = "steelblue1",
+     layout = my_layout, 
+     vertex.label = NA,
+     edge.curved = 0.2,
+     edge.width = E(net)$width)
+```
+
+
+# centrality measures
+
+```{r}
+V(net)$degree = degree(net)
+V(net)$size = log(V(net)$degree)*2
+
+plot(net, 
+     vertex.size = V(net)$size, 
+     vertex.color = "steelblue1",
+     layout = my_layout, 
+     vertex.label = NA,
+     edge.curved = 0.2)
+```
+
+# убрать редкие газеты
+
+```{r}
+
+rare_papers = meta %>% 
+  group_by(newspaper) %>% 
+  summarize(count = n()) %>% 
+  filter(count < 3)
+
+rare_papers$newspaper = as.character(rare_papers$newspaper)
+
+net2 = delete.vertices(net, V(net)$name %in% rare_papers$newspaper)
+my_layout2 = layout.fruchterman.reingold(net2)
+
+plot(net2,
+     vertex.size = V(net2)$size, 
+     vertex.color = "steelblue1",
+     layout = my_layout2, 
+     vertex.label = NA,
+     edge.curved = 0.2,
+     edge.width = E(net2)$width)
+```
+
+```{r}
+quantile(V(net)$degree, 0.9)
+V(net)$label = ifelse(V(net)$degree > quantile(V(net)$degree, 0.9), V(net)$name, NA)
+
+plot(net, 
+     vertex.size = V(net)$size, 
+     vertex.color = "steelblue1",
+     layout = my_layout,
+     edge.curved = 0.2, 
+     edge.width = E(net)$width,
+     vertex.label.cex = 0.75, 
+     vertex.label = V(net)$label, 
+     vertex.label.color = "black")
+```
+
+# community detection
+
+# interpretation
+```{r}
+meta$left_right[meta$left_right %in% c(77, 88)] = NA
+meta$wealth[meta$wealth %in% c(77, 88)] = NA
+
+attr_net = meta %>% 
+  group_by(newspaper) %>% 
+  summarize(
+    left_right_median = round(median(wealth, na.rm = T)),
+    count = n())
+  
+attr_net = meta %>% 
+  group_by(newspaper, social_class) %>% 
+  summarize(count = n()) %>% 
+  top_n(n = 1, wt = count) %>% 
+  select(-count) %>% 
+  right_join(attr_net)
+
+attr_net = attr_net[!duplicated(attr_net$newspaper),]
+
+colors = RColorBrewer::brewer.pal(name = "Set1", n = 9)
+attr_net$color = colors[as.numeric(attr_net$social_class)]
+
+attr_net = attr_net %>% 
+  filter(newspaper %in% V(net)$name)
+
+attr_net$newspaper = as.character(attr_net$newspaper)
+attr_net$social_class = as.character(attr_net$social_class)                
+
+V(net)$color = attr_net$color[match(attr_net$newspaper, V(net)$name)]
+V(net)$social_class = attr_net$social_class[match(attr_net$newspaper, V(net)$name)]
+
+plot(net, 
+     vertex.size = V(net)$size, 
+     vertex.color = V(net)$color,
+     layout = my_layout,
+     edge.curved = 0.2, 
+     edge.width = E(net)$width,
+     vertex.label.cex = 0.75, 
+     vertex.label = V(net)$label, 
+     vertex.label.color = "black")
+```
+
+# community
+```{r}
+clust_net = cluster_edge_betweenness(net)
+V(net)$color = colors[clust_net$membership]
+
+plot(net, 
+     vertex.size = V(net)$size, 
+     vertex.color = V(net)$color,
+     layout = my_layout,
+     edge.curved = 0.2, 
+     edge.width = E(net)$width,
+     vertex.label.cex = 0.75, 
+     vertex.label = V(net)$label, 
+     vertex.label.color = "black")
+```
+
+
+```{r}
+
+data <- toVisNetworkData(net)
+
+visNetwork(nodes = data$nodes, edges = data$edges) %>% 
+  visIgraphLayout()
+```
+
+```{r}
+data$nodes$size = (data$nodes$size+0.75) * 5
+data$edges$width = data$edges$width * 3
+data$nodes$title = data$nodes$label
+
+visNetwork(nodes = data$nodes, edges = data$edges) %>% 
+  visIgraphLayout() %>% 
+  visEdges(color = list("opacity" = 0.25))
+
+```
+
+```{r}
+
+
+visNetwork(nodes = data$nodes, edges = data$edges) %>% 
+  visIgraphLayout() %>% 
+  visEdges(color = list("opacity" = 0.25)) %>% 
+  visOptions(highlightNearest = TRUE,
+             selectedBy = list(variable = "social_class", multiple = T)) 
+  
+
+```
+
+```{r}
+
+meta_clust = data.frame(
+  newspaper = V(net)$name,
+  cluster = V(net)$color,
+  stringsAsFactors = FALSE
+)
+
+meta = left_join(meta, meta_clust)
+```
+
+```{r}
+meta_aggr = meta %>%  
+  group_by(newspaper, cluster) %>% 
+  summarize(wealth = mean(wealth, na.rm = T), 
+            left_right = mean(left_right, na.rm = T),
+            count_readers = n()) %>% 
+  filter(count_readers > 2) %>% 
+  filter(!is.na(cluster))
+
+meta_aggr = meta_aggr %>% 
+  group_by(cluster) %>% 
+  summarize(cluster_count = n()) %>% 
+  right_join(meta_aggr) %>% 
+  filter(cluster_count > 1)
+  
+ggplot() +
+  geom_point(data = meta_aggr, 
+              aes(x = wealth, y = left_right, 
+                  size = log(count_readers), 
+                  fill = cluster), 
+              color = "black", 
+              alpha = 0.35, shape = 21, stroke = 1) +
+  scale_size(range = c(4, 10)) +
+  xlab("Wealth") +
+  ylab("Left - Right") +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  scale_fill_manual(values = c("#4DAF4A" = "#4DAF4A", 
+                               "#E41A1C" = "#E41A1C",
+                               "#377EB8" = "#377EB8")) +
+  scale_color_manual(values = c("#4DAF4A" = "#4DAF4A", 
+                               "#E41A1C" = "#E41A1C",
+                               "#377EB8" = "#377EB8")) +
+  geom_text_repel(data = top_n(meta_aggr, 15, count_readers), 
+                  aes(x = wealth, y = left_right, 
+                  color = cluster, label = newspaper),
+                  size = 5, point.padding = 0.1)
+  
+
+```
