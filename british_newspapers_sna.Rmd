@@ -1,4 +1,10 @@
 
+# Social Network Analysis tutorial
+The 2nd IPSA-HSE Summer School for Methods of Political & Social Research. 
+St. Petersburg, Russia.
+
+## Read libraries
+
 ```{r}
 library(igraph)
 library(tidyverse)
@@ -7,33 +13,58 @@ library(visNetwork)
 library(ggrepel)
 ```
 
-graph_gb_papers.csv - это edgelist, т.е. каждая строчка в этой таблице представляет связь между двумя узлами в сети. Здесь узлы это периодические издания, связь между ними появляется, если один из респондентов читает обе газеты. У каждой связи есть атрибут weight (третья колонка), показывающий силу связи, то есть то, сколько всего человек читают обе газеты. 
+## Read data
+
+In this tutorial we will use two datasets constructed from the results of [European Parliament Election Study 2009](https://dbk.gesis.org/dbksearch/SDesc2.asp?no=5055&ll=10&af=&nf=1&db=e&search=&search2=&notabs=1). This study was about general political attitudes and behaviour and media usage of EU citizens. Our datasets contains only respondents from Great Britan.
+
+graph_gb_papers.csv - is a weigthed edgelist. Each row in this file is an edge of a network, where nodes are newpapers. Edge between two nodes exists in case if one person reads both of them. Third column in this table is a weight of edge - number of common readers.
 
 ```{r}
-# читаем данные
 net_edgelist = read.csv("graph_gb_papers.csv")
 View(net_edgelist)
 ```
+
+gb_data_survey.csv - is table with additional information about the readers. Each row is a pair "respondent - newspaper". In case if person reads two papers, there will be 2 rows with his characteristics, by one for each newspapers. 
+
+Variables:
+id - identification number of respondent
+region - region of living
+problem1 - public issue refered as the most important for Great Britan
+party - party affiliation
+days_a_week_news - how many days a week respondent follow political news
+left_right - political orientation (0 - left, 10 - right)
+membership_eu - opinion about Britan's membership in European union
+sex - ...
+birth_year - ...
+social_class - ...
+urban - level of living area urbanization
+religion - religion affilation
+wealth - level of wealth (1 - extremly poor, 7 - extremly rich)
+newspaper - newspaper the respondent used to read
+
 
 ```{r}
 meta = read.csv("gb_data_survey.csv")
 View(meta)
 ```
 
+## Load network data to igraph
+
 ```{r}
-# загружаем в igraph
-# неориентированный
-# доп аттрибуты
 net = graph_from_data_frame(net_edgelist, directed = FALSE)
 net
 ```
 
-```{r}
-par(mar = c(0,0,0,0))
+## Static visualization - first try
 
-# просто рисуем
+Looks ugly!
+
+```{r}
 plot(net)
 ```
+
+Lets remove titles and reduce the node size. 
+
 
 ```{r}
 # задаем параметры
@@ -185,7 +216,7 @@ plot(net,
 
 
 ```{r}
-
+# https://datastorm-open.github.io/visNetwork/
 data <- toVisNetworkData(net)
 
 visNetwork(nodes = data$nodes, edges = data$edges) %>% 
