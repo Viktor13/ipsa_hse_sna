@@ -14,7 +14,6 @@ library(ggrepel)
 
 # set plotting area options
 par(mar = c(0,0,0,0))
-
 ```
 
 ## Read data
@@ -45,7 +44,6 @@ urban - level of living area urbanization
 religion - religion affilation  
 wealth - level of wealth (1 - extremly poor, 7 - extremly rich)  
 newspaper - newspaper the respondent used to read  
-
 
 ```{r}
 meta = read.csv("gb_data_survey.csv", stringsAsFactors = FALSE)
@@ -85,7 +83,7 @@ We can recompute the layout of network.
 
 ```{r}
 my_layout = layout.fruchterman.reingold(net)
-# you may try another function e.g. layout.kamada.kawai()
+# you may try another layout e.g. layout.kamada.kawai()
 
 plot(net, 
      vertex.size = 4, 
@@ -114,7 +112,7 @@ plot(net,
      edge.width = E(net)$width)
 ```
 
-One of the practices to improve readability of the graph is to remove "inimportant" nodes or edges.
+One of the practices to improve readability of the graph is to remove "non-important" nodes or edges.
 
 Lets compute how many readers have each newspaper in our sample and remove those of them whch have less than 3.
 
@@ -175,40 +173,35 @@ plot(net,
      vertex.label.color = "black")
 ```
 
-# Community detection
+We could re-color the nodes to show some additional dimension in our data. Which journals are mostly read by conservatives? 
 
-# interpretation
 ```{r}
-meta$left_right[meta$left_right %in% c(77, 88)] = NA
-meta$wealth[meta$wealth %in% c(77, 88)] = NA
-
 attr_net = meta %>% 
-  group_by(newspaper) %>% 
-  summarize(
-    left_right_median = round(median(wealth, na.rm = T)),
-    count = n())
-  
-attr_net = meta %>% 
-  group_by(newspaper, social_class) %>% 
+  group_by(newspaper, party) %>% 
   summarize(count = n()) %>% 
   top_n(n = 1, wt = count) %>% 
-  select(-count) %>% 
-  right_join(attr_net)
+  select(-count)
 
+# select one party if there are two with the same number of readers
 attr_net = attr_net[!duplicated(attr_net$newspaper),]
 
+# select qualitive color sclae (http://colorbrewer2.org)
 colors = RColorBrewer::brewer.pal(name = "Set1", n = 9)
-attr_net$color = colors[as.numeric(attr_net$social_class)]
 
+attr_net$party_num = attr_net$party %>% 
+  as.factor() %>% 
+  as.numeric()
+
+attr_net$color = colors[attr_net$party_num]
+
+# filter out newspapers which are not in the network
 attr_net = attr_net %>% 
   filter(newspaper %in% V(net)$name)
 
-attr_net$newspaper = as.character(attr_net$newspaper)
-attr_net$social_class = as.character(attr_net$social_class)                
+# add new color to graph's nodes assigned by the dominant party among readers
+V(net)$color = attr_net$color[match(V(net)$name, attr_net$newspaper)]
 
-V(net)$color = attr_net$color[match(attr_net$newspaper, V(net)$name)]
-V(net)$social_class = attr_net$social_class[match(attr_net$newspaper, V(net)$name)]
-
+# plot network
 plot(net, 
      vertex.size = V(net)$size, 
      vertex.color = V(net)$color,
@@ -220,9 +213,14 @@ plot(net,
      vertex.label.color = "black")
 ```
 
-# community
+## Community detection
+
+Many networks consist of modules which are densely connected themselves but sparsely connected to other modules. 
+
 ```{r}
 clust_net = cluster_edge_betweenness(net)
+# you may try another community detection algorithms e.g. cluster_louvain()
+
 V(net)$color = colors[clust_net$membership]
 
 plot(net, 
@@ -236,6 +234,99 @@ plot(net,
      vertex.label.color = "black")
 ```
 
+To interpret how these groups of newspapers were formed we can refer to external data about their readers.
+
+Let check how these clusters looks in two-dimensional space on political orientation of readers and their wealth.
+
+```{r}
+# extract newspaper title and community color 
+meta_clust = data.frame(
+  newspaper = V(net)$name,
+  cluster = V(net)$color,
+  stringsAsFactors = FALSE
+)
+
+# add community color to metadata
+meta = left_join(meta, meta_clust)
+
+# missings were coded as 77 and 88 
+meta$left_right[meta$left_right %in% c(77, 88)] = NA
+meta$wealth[meta$wealth %in% c(77, 88)] = NA
+
+# compute mean political orientation and welath for each newspaper
+meta_aggr = meta %>%  
+  group_by(newspaper, cluster) %>% 
+  summarize(wealth = mean(wealth, na.rm = T), 
+            left_right = mean(left_right, na.rm = T),
+            count_readers = n())
+
+# remove newspapaers with less than 3 readers 
+# and those which are not in the network and not assigned to any community 
+meta_aggr = meta_aggr %>% 
+  filter(count_readers > 2) %>% 
+  filter(!is.na(cluster))
+
+# remove communities consists of less than 2 newspapers
+meta_aggr = meta_aggr %>% 
+  group_by(cluster) %>% 
+  summarize(cluster_count = n()) %>% 
+  right_join(meta_aggr) %>% 
+  filter(cluster_count > 1)
+  
+# ggplot empty layer
+p = ggplot() 
+
+# add points on the plot
+# each point is a newspapaer
+# size is logarithmed number of readers 
+# color is community
+p = p + geom_point(data = meta_aggr, 
+                   aes(x = left_right, y = wealth, 
+                       size = log(count_readers), 
+                       fill = cluster), 
+                   color = "black", alpha = 0.35, 
+                   shape = 21, stroke = 1) 
+
+p
+
+# change size scale
+# change axis titles
+# add appearence theme 
+# remove legend
+p = p +
+  scale_size(range = c(4, 10)) +
+  ylab("Wealth") +
+  xlab("Left - Right") +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+p
+
+# color codes were detected as just levels of factor variable
+# set the same colors as on the network visualization
+p = p +
+  scale_fill_manual(values = c("#4DAF4A" = "#4DAF4A", 
+                               "#E41A1C" = "#E41A1C",
+                               "#377EB8" = "#377EB8")) +
+  scale_color_manual(values = c("#4DAF4A" = "#4DAF4A", 
+                               "#E41A1C" = "#E41A1C",
+                               "#377EB8" = "#377EB8")) 
+
+p
+
+# add titles of the top 15 newspapers by number of readers
+p = p +
+  geom_text_repel(data = top_n(meta_aggr, 15, count_readers), 
+                  aes(x = left_right, y = wealth, 
+                  color = cluster, label = newspaper),
+                  size = 5, point.padding = 0.1)
+  
+p
+```
+
+## Interactive visualization
+
+visNetwork is an R package for network visualization. It allows to convert network from igraph without difficulties. 
 
 ```{r}
 # https://datastorm-open.github.io/visNetwork/
@@ -245,6 +336,8 @@ visNetwork(nodes = data$nodes, edges = data$edges) %>%
   visIgraphLayout()
 ```
 
+Size of nodes and some other appearance parameters are not looking good. Lets ajust it a little bit. Also we can add title for nodes, which will appear as a popup when the mouse will hover over node. 
+
 ```{r}
 data$nodes$size = (data$nodes$size+0.75) * 5
 data$edges$width = data$edges$width * 3
@@ -253,69 +346,18 @@ data$nodes$title = data$nodes$label
 visNetwork(nodes = data$nodes, edges = data$edges) %>% 
   visIgraphLayout() %>% 
   visEdges(color = list("opacity" = 0.25))
-
 ```
 
-```{r}
+Moreover, visNetwork allows to add various interactivity. For exapmle to highlight nodes with particular characteristic.
 
+```{r}
+data$nodes$party = attr_net$party[match(V(net)$name, attr_net$newspaper)]
 
 visNetwork(nodes = data$nodes, edges = data$edges) %>% 
   visIgraphLayout() %>% 
   visEdges(color = list("opacity" = 0.25)) %>% 
   visOptions(highlightNearest = TRUE,
-             selectedBy = list(variable = "social_class", multiple = T)) 
-  
-
+             selectedBy = list(variable = "party", multiple = T)) 
 ```
 
-```{r}
 
-meta_clust = data.frame(
-  newspaper = V(net)$name,
-  cluster = V(net)$color,
-  stringsAsFactors = FALSE
-)
-
-meta = left_join(meta, meta_clust)
-```
-
-```{r}
-meta_aggr = meta %>%  
-  group_by(newspaper, cluster) %>% 
-  summarize(wealth = mean(wealth, na.rm = T), 
-            left_right = mean(left_right, na.rm = T),
-            count_readers = n()) %>% 
-  filter(count_readers > 2) %>% 
-  filter(!is.na(cluster))
-
-meta_aggr = meta_aggr %>% 
-  group_by(cluster) %>% 
-  summarize(cluster_count = n()) %>% 
-  right_join(meta_aggr) %>% 
-  filter(cluster_count > 1)
-  
-ggplot() +
-  geom_point(data = meta_aggr, 
-              aes(x = wealth, y = left_right, 
-                  size = log(count_readers), 
-                  fill = cluster), 
-              color = "black", 
-              alpha = 0.35, shape = 21, stroke = 1) +
-  scale_size(range = c(4, 10)) +
-  xlab("Wealth") +
-  ylab("Left - Right") +
-  theme_minimal() +
-  theme(legend.position = "none") +
-  scale_fill_manual(values = c("#4DAF4A" = "#4DAF4A", 
-                               "#E41A1C" = "#E41A1C",
-                               "#377EB8" = "#377EB8")) +
-  scale_color_manual(values = c("#4DAF4A" = "#4DAF4A", 
-                               "#E41A1C" = "#E41A1C",
-                               "#377EB8" = "#377EB8")) +
-  geom_text_repel(data = top_n(meta_aggr, 15, count_readers), 
-                  aes(x = wealth, y = left_right, 
-                  color = cluster, label = newspaper),
-                  size = 5, point.padding = 0.1)
-  
-
-```
